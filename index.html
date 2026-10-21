@@ -67,6 +67,74 @@ function book(){
  result.textContent="Demo "+vehicle+" request created. No driver contacted.";
 }
 </script>
+
+<!-- Raahiq customer authentication -->
+<section id="authBox" style="padding:20px;max-width:500px;margin:auto">
+  <h2>Raahiq Account</h2>
+  <input id="authEmail" type="email"
+    placeholder="Email address" autocomplete="email">
+  <br><br>
+  <input id="authPassword" type="password"
+    placeholder="Password (minimum 6 characters)"
+    autocomplete="current-password">
+  <br><br>
+  <button onclick="signUp()">Create Account</button>
+  <br><br>
+  <button onclick="signIn()">Sign In</button>
+  <br><br>
+  <button onclick="signOut()">Sign Out</button>
+  <p id="authMessage" aria-live="polite"></p>
+</section>
+
+<script type="module">
+import {createClient} from
+  "https://esm.sh/@supabase/supabase-js@2";
+
+const supabase = createClient(
+  "YOUR_SUPABASE_PROJECT_URL",
+  "YOUR_PUBLISHABLE_KEY"
+);
+
+const message = document.getElementById("authMessage");
+
+function credentials() {
+  return {
+    email: document.getElementById("authEmail").value.trim(),
+    password: document.getElementById("authPassword").value
+  };
+}
+
+window.signUp = async () => {
+  const {email,password} = credentials();
+  const {data,error} = await supabase.auth.signUp({
+    email,password
+  });
+  message.textContent = error
+    ? error.message
+    : data.session
+      ? "Account created and signed in!"
+      : "Check your email to confirm your account.";
+};
+
+window.signIn = async () => {
+  const {email,password} = credentials();
+  const {error} = await supabase.auth.signInWithPassword({
+    email,password
+  });
+  message.textContent = error
+    ? error.message
+    : "Signed in successfully!";
+};
+
+window.signOut = async () => {
+  const {error} = await supabase.auth.signOut();
+  message.textContent = error
+    ? error.message
+    : "Signed out successfully.";
+};
+</script>
+ 
+ 
 </body>
 </html>
 q
