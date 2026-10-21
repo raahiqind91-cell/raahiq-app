@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raahiq - Your Ride Your Way</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f7;font-family:Arial,sans-serif;color:#173b39}
+header{background:#123a36;color:white;padding:28px 22px;border-radius:0 0 25px 25px}
+.logo{font-size:29px;font-weight:bold;color:#9df2c3}
+h2{font-size:23px;margin:24px 0 8px}
+main{padding:20px;max-width:500px;margin:auto}
+.options{display:flex;gap:12px;margin:15px 0}
+.ride{flex:1;background:white;border:2px solid #e0e8e4;border-radius:16px;padding:22px 10px;text-align:center;font-size:19px;cursor:pointer}
+.ride.active{border-color:#16845d;background:#ddf5e8}
+.card{background:white;border-radius:16px;padding:20px;margin:18px 0}
+label{display:block;font-size:13px;margin:12px 0 7px;color:#60746c}
+input{width:100%;padding:15px;border:1px solid #dce5e1;border-radius:10px;font-size:16px}
+button{width:100%;padding:17px;border:0;border-radius:12px;background:#147857;color:white;font-size:17px;font-weight:bold}
+.note{font-size:12px;color:#71827c}
+#result{margin-top:15px;font-weight:bold}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">➤ Raahiq</div>
+<h2>Where are you going?</h2>
+<p>Your Ride. Your Way.</p>
+</header>
+<main>
+<h3>Choose your ride</h3>
+<div class="options">
+<div class="ride active" id="bike" onclick="choose('bike')">🏍️<br>Bike</div>
+<div class="ride" id="cab" onclick="choose('cab')">🚕<br>Cab</div>
+</div>
+<div class="card">
+<label>Pickup location</label>
+<input id="pickup" placeholder="Enter pickup address">
+<label>Destination</label>
+<input id="drop" placeholder="Where to?">
+</div>
+<div class="card">
+<h3>Estimated fare: —</h3>
+<p class="note">Fare calculation coming soon.</p>
+</div>
+<button onclick="book()">Book Ride</button>
+<p id="result" aria-live="polite"></p>
+</main>
+<script>
+let vehicle="bike";
+function choose(type){
+ vehicle=type;
+ document.querySelectorAll(".ride").forEach(el=>{
+  el.classList.toggle("active",el.id===type);
+ });
+}
+function book(){
+ const pickup=document.getElementById("pickup").value.trim();
+ const drop=document.getElementById("drop").value.trim();
+ const result=document.getElementById("result");
+ if(!pickup||!drop){
+  result.textContent="Please enter both locations.";
+  return;
+ }
+ result.textContent="Demo "+vehicle+" request created. No driver contacted.";
+}
+</script>
+</body>
+</html>
+q
