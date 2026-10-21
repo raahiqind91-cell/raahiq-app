@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123a36">
+  <title>Raahiq | Your Ride. Your Way.</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#193b36;background:#f4f7f6}
+    *{box-sizing:border-box}body{margin:0}header{background:#123a36;color:white;padding:22px 18px;text-align:center}
+    header h1{margin:0;font-size:34px;letter-spacing:.5px}header p{margin:5px 0 0;color:#c7e5dc}
+    main{max-width:560px;margin:20px auto;padding:0 14px 28px}.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 5px 22px #173b3612}
+    h2{font-size:21px;margin:0 0 9px}p{line-height:1.45}.muted{color:#5d746f;font-size:14px}
+    label{display:block;font-weight:650;font-size:14px;margin:14px 0 6px}
+    input{width:100%;font:inherit;padding:13px;border:1px solid #cbdad6;border-radius:10px;background:white;color:#193b36}
+    input:focus{outline:2px solid #58b39d;outline-offset:1px}
+    button{font:inherit;font-weight:700;border:0;border-radius:11px;padding:13px 16px;cursor:pointer}
+    button:disabled{opacity:.55;cursor:not-allowed}.primary{background:#126b59;color:white;width:100%;margin-top:16px}
+    .secondary{background:#e5efeb;color:#123a36;width:100%;margin-top:9px}
+    .choice-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
+    .choice{border:2px solid #dce8e3;background:#f7faf9;color:#193b36}
+    .choice.active{border-color:#126b59;background:#e0f3eb}
+    .number-row{display:flex;gap:9px}.prefix{padding:13px;border-radius:10px;background:#edf3f0;white-space:nowrap}
+    .status{min-height:22px;font-size:14px;margin:12px 0 0;color:#135d50;overflow-wrap:anywhere}
+    .notice{background:#fff7dc;border:1px solid #ebd99a;border-radius:11px;padding:12px;font-size:13px;color:#66531d}
+    .summary{background:#edf7f2;border-radius:12px;padding:14px;margin-top:14px;overflow-wrap:anywhere}
+    .summary p{margin:6px 0}footer{text-align:center;color:#607872;font-size:12px;padding:8px 18px 28px}
+    [hidden]{display:none!important}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Raahiq</h1>
+    <p>Your Ride. Your Way.</p>
+  </header>
+  <main>
+    <div class="notice"><strong>Demo prototype:</strong> No real SMS is sent, no phone number is verified, and no driver receives a ride request. Do not use this page for real bookings or payments.</div>
+
+    <section class="card" id="loginCard" aria-label="Demo mobile login">
+      <h2>Welcome to Raahiq</h2>
+      <p class="muted">Continue with your mobile number (demo only).</p>
+      <div id="phoneStep">
+        <label for="mobile">Mobile number</label>
+        <div class="number-row"><span class="prefix">🇮🇳 +91</span><input id="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10-digit mobile number"></div>
+        <button class="primary" id="continueBtn" type="button">Continue</button>
+      </div>
+      <div id="otpStep" hidden>
+        <p class="muted">No OTP was sent. This button only simulates the next step.</p>
+        <button class="primary" id="demoVerifyBtn" type="button">Simulate OTP Verification</button>
+        <button class="secondary" id="changeNumberBtn" type="button">Change number</button>
+      </div>
+      <div id="welcomeStep" hidden>
+        <p id="welcomeText"></p>
+        <p class="muted">Demo access only. Your phone number has not been verified.</p>
+        <button class="secondary" id="logoutBtn" type="button">Exit Demo</button>
+      </div>
+      <p id="loginStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card" id="bookingCard" hidden aria-label="Demo ride booking">
+      <h2>Book a ride</h2>
+      <p class="muted">Select your ride and enter your route.</p>
+      <div class="choice-row" role="group" aria-label="Vehicle type">
+        <button type="button" id="bikeBtn" class="choice active" aria-pressed="true">🏍️ Bike</button>
+        <button type="button" id="cabBtn" class="choice" aria-pressed="false">🚕 Cab</button>
+      </div>
+      <label for="pickup">Pickup location</label>
+      <input id="pickup" placeholder="e.g. Jaigaon Bus Stand" maxlength="120">
+      <label for="destination">Destination</label>
+      <input id="destination" placeholder="e.g. Hasimara Railway Station" maxlength="120">
+      <button type="button" class="primary" id="previewBtn">Preview Ride Request</button>
+      <p id="bookingStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="rideSummary" class="summary" hidden></div>
+    </section>
+  </main>
+  <footer>Raahiq • Demo version • No live dispatch, fare quote, or payments</footer>
+
+  <script>
+    'use strict';
+    const el = id => document.getElementById(id);
+    let demoPhone = '';
+    let vehicle = 'bike';
+    const show = (id, visible) => { el(id).hidden = !visible; };
+    const message = (id, value) => { el(id).textContent = value; };
+
+    el('continueBtn').addEventListener('click', () => {
+      const phone = el('mobile').value.trim();
+      if (!/^[6-9][0-9]{9}$/.test(phone)) {
+        message('loginStatus', 'Please enter a valid 10-digit Indian mobile number.');
+        return;
+      }
+      demoPhone = phone;
+      show('phoneStep', false);
+      show('otpStep', true);
+      message('loginStatus', 'Demo step only: no SMS has been sent.');
+    });
+
+    el('changeNumberBtn').addEventListener('click', () => {
+      show('otpStep', false);
+      show('phoneStep', true);
+      message('loginStatus', '');
+    });
+
+    el('demoVerifyBtn').addEventListener('click', () => {
+      show('otpStep', false);
+      show('welcomeStep', true);
+      show('bookingCard', true);
+      message('welcomeText', 'Demo number: +91 ' + demoPhone);
+      message('loginStatus', 'Demo login complete — no authentication occurred.');
+    });
+
+    el('logoutBtn').addEventListener('click', () => {
+      demoPhone = '';
+      el('mobile').value = '';
+      el('pickup').value = '';
+      el('destination').value = '';
+      show('welcomeStep', false);
+      show('phoneStep', true);
+      show('bookingCard', false);
+      show('rideSummary', false);
+      message('loginStatus', 'Demo session ended.');
+      message('bookingStatus', '');
+    });
+
+    function selectVehicle(type) {
+      vehicle = type;
+      for (const typeName of ['bike', 'cab']) {
+        const active = typeName === type;
+        el(typeName + 'Btn').classList.toggle('active', active);
+        el(typeName + 'Btn').setAttribute('aria-pressed', String(active));
+      }
+      show('rideSummary', false);
+    }
+    el('bikeBtn').addEventListener('click', () => selectVehicle('bike'));
+    el('cabBtn').addEventListener('click', () => selectVehicle('cab'));
+
+    el('previewBtn').addEventListener('click', () => {
+      const pickup = el('pickup').value.trim();
+      const destination = el('destination').value.trim();
+      if (!pickup || !destination) {
+        message('bookingStatus', 'Please enter both pickup and destination.');
+        show('rideSummary', false);
+        return;
+      }
+      if (pickup.toLowerCase() === destination.toLowerCase()) {
+        message('bookingStatus', 'Pickup and destination must be different.');
+        show('rideSummary', false);
+        return;
+      }
+      const summary = el('rideSummary');
+      summary.replaceChildren();
+      const heading = document.createElement('strong');
+      heading.textContent = 'Demo Ride Request';
+      summary.appendChild(heading);
+      for (const [label, value] of [
+        ['Vehicle', vehicle === 'bike' ? 'Bike' : 'Cab'],
+        ['Pickup', pickup],
+        ['Destination', destination],
+        ['Status', 'Preview only — not submitted']
+      ]) {
+        const line = document.createElement('p');
+        const strong = document.createElement('strong');
+        strong.textContent = label + ': ';
+        line.append(strong, document.createTextNode(value));
+        summary.appendChild(line);
+      }
+      show('rideSummary', true);
+      message('bookingStatus', 'Preview created. No driver has been contacted.');
+    });
+  </script>
+</body>
+</html>
